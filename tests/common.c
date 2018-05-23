@@ -7,6 +7,7 @@
 
 
 #include <criterion/criterion.h>
+#include <stdio.h>
 #include "unistd.h"
 #include "common.h"
 
@@ -60,9 +61,9 @@ Test(socket_connect, valid_connect)
 	int csock = accept(sock, (struct sockaddr *)&in, &len);
 
 	if (csock != -EXIT_FAILURE)
-		cr_assert_eq(socket_connect(sock, INADDR_ANY, 1234), 0);
+		cr_assert_eq(socket_connect(sock, INADDR_ANY, 1234), 0, "%d");
 	else
-		cr_assert_eq(socket_connect(sock, INADDR_ANY, 1234), -1);
+		cr_assert_eq(socket_connect(sock, INADDR_ANY, 1234), -1, "%d");
 	close(sock);
 }
 
@@ -75,11 +76,11 @@ Test(push_front, valid_front_push_with_int)
 
 	for (i = 0; i < 5; i++) {
 		is_valid = push_front(&node, &arr[i], sizeof(int));
-		cr_assert_eq(is_valid, true);
+		cr_assert_eq(is_valid, true, "%d");
 	}
 	i = 4;
 	while (node != NULL) {
-		cr_assert_eq(*(int *)node->data, arr[i]);
+		cr_assert_eq(*(int *)node->data, arr[i], "%d");
 		node = node->next;
 		i -= 1;
 	}
@@ -179,4 +180,42 @@ Test(push_back, valid_push_back_with_different_types)
 
 	struct test *result = node->data;
 	cr_assert_eq(result->nb, forth->nb);
+}
+
+
+Test(delete_node, valid_push_and_node_deletion)
+{
+	struct node *node = NULL;
+	struct node *todel = NULL;
+	int values[] = {1, 2, 3, 4}, i = -1;
+	bool is_valid = false;
+
+	for (i; i < 4; i++) {
+		is_valid = push_back(&node, &values[i], sizeof(int));
+		if (i == 1)
+			todel = node;
+		cr_assert_eq(is_valid, true);
+	}
+
+	i = 0;
+	delete_node(&node, todel);
+	for(;node != NULL;node = node->next) {
+		if (i == 1)
+			cr_assert_eq(*(int*)node->data, 2);
+		i += 1;
+	}
+}
+
+Test(header_generation, valid_http_header_generatiion)
+{
+	char *header;
+	char *expected_header;
+	char *info = calloc(7, sizeof(char));
+
+	strcpy(info, "TEST\r\n");
+	expected_header = calloc(HTTP_HEADER_LENGTH(info), sizeof(char));
+	expected_header = "HTTP/1.1 200 OK\r\ncontent-type: text/plain\r\n" \
+		   "content-length: 4\r\nTEST";
+	header = generate_header(info);
+	cr_assert_str_eq(header, expected_header);
 }
