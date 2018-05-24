@@ -22,6 +22,17 @@ static unsigned int count_tabs(char *str)
 	return tab + 1;
 }
 
+#include <stdio.h>
+
+static char *str_cut(char *str)
+{
+	char *find = strstr(str, "\r\n");
+
+	if (find)
+		*find = '\0';
+	return str;
+}
+
 size_t strtab_len(char **strtab)
 {
 	int size = 0;
@@ -39,7 +50,7 @@ char **str_to_strtab(char *str)
 	if (!strtab)
 		return NULL;
 	for (int idx = 0; idx < size && tab; ++idx) {
-		strtab[idx] = tab;
+		strtab[idx] = str_cut(tab);
 		tab = strtok(NULL, " ");
 	}
 	return strtab;

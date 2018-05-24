@@ -21,10 +21,5 @@ const command_t *commands, command_ptr *function)
 			return true;
 		}
 	}
-	if (strncmp(name, "/", 1) != 0) {
-		// TODO: link function for broadcast message
-		*function = commands[i].function;
-		return true;
-	}
 	return false;
 }

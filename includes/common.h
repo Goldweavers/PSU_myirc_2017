@@ -26,18 +26,6 @@ char **str_to_strtab(char *str);
 size_t strtab_len(char **strtab);
 /* !parsing.c */
 
-/* commands.c */
-typedef int (*command_ptr)(char *parameters[]);
-
-typedef struct command {
-	char *name;
-	command_ptr function;
-} command_t;
-
-bool find_command_by_name(char *name, \
-const command_t *commands, command_ptr *function);
-/* !commands.c */
-
 /* generic_list.c */
 typedef struct node {
 	struct node *next;
@@ -48,7 +36,7 @@ bool push_front(struct node **head, void *new_data, size_t datasize);
 
 bool push_back(struct node **head, void *new_data, size_t datasize);
 
-bool delete_node(struct node **origin, struct node *todel);
+bool delete_node(struct node **origin, void *todel);
 /* !generic_list.c */
 
 /* http_header.c */
@@ -105,6 +93,18 @@ int socket_connect(socket_t sock, in_addr_t address, in_port_t port);
 
 bool socket_accept(int listenfd, client_t *client);
 /* !socket.c */
+
+/* commands.c */
+typedef int (*command_ptr)(char *parameters[], socket_t client);
+
+typedef struct command {
+	char *name;
+	command_ptr function;
+} command_t;
+
+bool find_command_by_name(char *name, \
+const command_t *commands, command_ptr *function);
+/* !commands.c */
 
 /* epoll.c */
 bool epoll_init(int *epfd);

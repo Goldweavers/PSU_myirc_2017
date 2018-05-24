@@ -11,6 +11,9 @@ SRCS	=	../server.c			\
 		../common/memory.c		\
 		../common/parsing.c		\
 		../common/commands.c		\
+		commands/nick.c			\
+		reply_codes.c			\
+		user.c				\
 
 OBJS	=	$(SRCS:.c=.o)
 

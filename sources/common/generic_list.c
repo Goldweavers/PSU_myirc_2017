@@ -17,9 +17,12 @@ bool push_front(struct node **head, void *new_data, size_t datasize)
 
 	if (new == NULL)
 		return false;
-	new->data = (void *)(new) + sizeof(*new);
 	new->next = (*head);
-	memcpy(new->data, new_data, datasize);
+	if (datasize) {
+		new->data = (void *)new + sizeof(*new);
+		memcpy(new->data, new_data, datasize);
+	} else
+		new->data = new_data;
 	(*head) = new;
 	return true;
 }
@@ -28,6 +31,7 @@ bool push_back(struct node **head, void *new_data, size_t datasize)
 {
 	struct node *new = calloc(1, sizeof(struct node) + datasize);
 	struct node *last = *head;
+
 	if (new == NULL)
 		return false;
 	new->data = (void *)(new) + sizeof(*new);
@@ -41,15 +45,18 @@ bool push_back(struct node **head, void *new_data, size_t datasize)
 	return true;
 }
 
-bool delete_node(struct node **origin, struct node *todel)
+#include <stdio.h>
+
+bool delete_node(struct node **origin, void *todel)
 {
-	struct node* next;
+	struct node *next;
+
 	if ((*origin) == NULL)
 		return false;
-	else if ((*origin) == todel) {
+	else if ((*origin)->data == todel) {
 		next = (*origin)->next;
-		free((*origin));
-		(*origin) = next;
+		free(*origin);
+		*origin = next;
 		return true;
 	} else {
 		delete_node(&((*origin)->next), todel);
