@@ -16,8 +16,9 @@
 // TODO: really do this function
 int server(char *parameters[])
 {
-	socket_t sock = socket_init("TCP");
+	socket_t sock;
 
+	socket_init("TCP", &sock);
 	if (sock == -EXIT_FAILURE
 		|| socket_connect(sock, INADDR_LOOPBACK, 6665) == -1)
 		return EXIT_FAILURE;

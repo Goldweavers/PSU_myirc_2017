@@ -45,189 +45,26 @@ static bool listener_init(in_port_t port)
 	return true;
 }
 
-bool del_corrupted(const struct epoll_event *event)
-{
-	const char *format = "corrupted fd <%d> was removed\n";
-
-	if (event->events & EPOLLERR || event->events & EPOLLHUP) {
-		epoll_pop(server.epoll, event->data.fd);
-		close(event->data.fd);
-		return eprintf(true, format, event->data.fd);
-	}
-	return false;
-}
-
-bool accept_new_user(void)
-{
-	user_t user = { .nickname=NULL, .channels=NULL };
-
-	if (socket_accept(server.listener, &user.net)) {
-		if (!epoll_push(server.epoll, user.net.socket, EPOLLIN))
-			return !close(user.net.socket);
-		if (push_front(&server.users, &user, sizeof(user)) == false) {
-			epoll_pop(server.epoll, user.net.socket);
-			return !close(user.net.socket);
-		}
-		return true;
-	}
-	return false;
-}
-
-int debug(char *parameters[], socket_t client)
-{
-	return EXIT_SUCCESS;
-}
-
-bool delete_nodes(node_t **list)
-{
-	for (node_t *node = *list; node != NULL; node = node->next) {
-		if (delete_node(list, node->data) == false)
-			return false;
-	}
-	return true;
-}
-
-void delete_user(user_t *user)
-{
-	for (node_t *node = user->channels; node != NULL; node = node->next) {
-		delete_node(&((channel_t *)node->data)->users, (void *)user);
-	}
-	delete_nodes(&user->channels);
-	epoll_pop(server.epoll, user->net.socket);
-	close(user->net.socket);
-	free(user->nickname);
-	delete_node(&server.users, (void *)user);
-}
-
-int quit(char *parameters[], socket_t client)
-{
-	user_t *user = find_user_by_socket(server.users, client);
-
-	dprintf(user->net.socket, "Exiting all channels...\n");
-
-	delete_user(user);
-	return EXIT_SUCCESS;
-}
-
-bool find_server_commands(char *name, command_ptr *function)
-{
-	const command_t commands[] = {
-		{"NICK", &nick}, {"LIST", &debug}, {"JOIN", &debug},
-		{"PART", &debug}, {"USERS", &debug}, {"MSG", &debug},
-		{"ACCEPT_FILE", &debug}, {"QUIT", &quit}, {NULL, NULL}
-	};
-
-	return find_command_by_name(name, commands, function);
-}
-
-bool handle_command(socket_t client, char *input)
-{
-	char **strtab = str_to_strtab(input);
-	command_ptr function;
-
-	if (!strtab)
-		return eprintf(false, "Failed to allocate\n");
-	printf("FUNCTION CALLED: %s\n", strtab[0]);
-	if (find_server_commands(strtab[0], &function) == false)
-		dprintf(client, "Unknown command: %s\n", strtab[0]);
-	else
-		function(&strtab[1], client);
-	free(strtab);
-	free(input);
-	return true;
-}
-
-bool get_inputs(socket_t sock, char **inputs)
-{
-	size_t size = 0;
-	socket_t clone = dup(sock);
-	FILE *file = NULL;
-
-	if (clone == -EXIT_FAILURE)
-		return eprintf(false, "dup: %s\n", geterr());
-	file = fdopen(clone, "r");
-	if (file == NULL) {
-		close(clone);
-		return eprintf(false, "fdopen: %s\n", geterr());
-	}
-	if (getline(inputs, &size, file) == -EXIT_FAILURE)
-		freeset((void **)inputs);
-	fclose(file);
-	return true;
-}
-
-bool handle_event(const struct epoll_event *event)
-{
-	user_t *user = NULL;
-	char *line = NULL;
-
-	if (event->data.fd == server.listener) {
-		return accept_new_user();
-	}
-	if (get_inputs(event->data.fd, &line) == true) {
-		if (line == NULL) {
-			user = find_user_by_socket(server.users, event->data.fd);
-			delete_node(&server.users, (void *)user);
-			epoll_pop(server.epoll, event->data.fd);
-			close(event->data.fd);
-			return eprintf(true, "Exiting client: %s\n", geterr());
-		}
-		return handle_command(event->data.fd, line);
-	}
-	return false;
-}
-
-int wait_for_events(void)
-{
-	static struct epoll_event events[MAX_EVENTS];
-	int nevents = epoll_wait(server.epoll, events, MAX_EVENTS, -1);
-	struct epoll_event *event = events;
-
-	for (int i = 0; i < nevents; event = &events[++i]) {
-		if (!del_corrupted(event) && event->events & EPOLLIN) {
-			handle_event(event);
-		}
-	}
-	return EXIT_SUCCESS;
-}
-
 static int server_init(in_port_t port)
 {
+	time_t now = time(NULL);
+	struct tm *time = localtime(&now);
+
+	server.created = asctime(time);
+	eprintf(0, "Created on %s", server.created);
+	server.created[strlen(server.created) - 1] = '\0';
 	if (!epoll_init(&server.epoll) || !listener_init(port))
 		return EPITECH_ERROR;
 	while (true)
 		wait_for_events();
 }
 
-void sighandler(int status)
-{
-	node_t *next = NULL;
-
-	(void)status;
-	close(server.epoll);
-	close(server.listener);
-	for (node_t *node = server.users; node != NULL; node = next) {
-		free(((user_t *)node->data)->nickname);
-		// TODO: free channels list
-		close(((user_t *)node->data)->net.socket);
-		next = node->next;
-		free(node);
-	}
-	for (node_t *node = server.channels; node != NULL; node = next) {
-		next = node->next;
-		free(node);
-	}
-	exit(EXIT_SUCCESS);
-}
-
 int main(int ac, char *av[])
 {
-	time_t t = time(NULL);
 	in_port_t port;
 
 	(void)ac;
-	signal(SIGINT, &sighandler);
-	server.creation = localtime(&t);
+	signal(SIGINT, &sig_handler);
 	if (av[1] && !strcmp(av[1], "-help"))
 		return print_usage(EXIT_SUCCESS);
 	if (str_to_port(av[1], &port) == false)

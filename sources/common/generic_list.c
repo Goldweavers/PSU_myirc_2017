@@ -45,8 +45,6 @@ bool push_back(struct node **head, void *new_data, size_t datasize)
 	return true;
 }
 
-#include <stdio.h>
-
 bool delete_node(struct node **origin, void *todel)
 {
 	struct node *next;
@@ -62,4 +60,24 @@ bool delete_node(struct node **origin, void *todel)
 		delete_node(&((*origin)->next), todel);
 		return true;
 	}
+}
+
+int count_nodes(node_t *list)
+{
+	int length = 0;
+
+	for (; list != NULL; list = list->next, ++length);
+	return length;
+}
+
+bool delete_nodes(node_t **list)
+{
+	node_t *next = NULL;
+
+	for (node_t *node = *list; node != NULL; node = next) {
+		next = node->next;
+		if (delete_node(list, node->data) == false)
+			return false;
+	}
+	return true;
 }

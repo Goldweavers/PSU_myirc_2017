@@ -13,7 +13,7 @@
 
 #include "client.h"
 
-int client(void)
+int client_init(void)
 {
 	char *line = NULL;
 	command_ptr function;
@@ -21,7 +21,7 @@ int client(void)
 	char **strtab;
 
 	while (printf("[(status)] ") && getline(&line, &size, stdin) > 0) {
-		strtab = str_to_strtab(line);
+		strtab = str_to_strtab(line, " ");
 		// TODO: check strtab calloc
 		if (find_client_commands(strtab[0], &function) == false) {
 			eprintf(0, "Unknown command: %s\n", &strtab[0][1]);
@@ -46,5 +46,5 @@ int main(int ac, char *av[])
 	       " / /  / / /_/ // // _, _/ /___   \n"
 	       "/_/  /_/\\__, /___/_/ |_|\\____/   \n"
 	       "       /____/                    \n\n");
-	return client();
+	return client_init();
 }

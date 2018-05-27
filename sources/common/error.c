@@ -27,7 +27,8 @@ int eprintf(int exit_code, const char *format, ...)
 	va_list args;
 
 	va_start(args, format);
-	dprintf(STDERR_FILENO, "%d:%d -!- MyIRC: ", info->tm_hour, info->tm_min);
+	dprintf(STDERR_FILENO, "%02d:%02d -!- MyIRC: ",
+		info->tm_hour, info->tm_min);
 	vdprintf(STDERR_FILENO, format, args);
 	va_end(args);
 	return exit_code;

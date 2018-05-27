@@ -18,10 +18,8 @@
 	#define EPITECH_ERROR 84
 #endif
 
-#define CRLF_SIZE (2)
-
 /* parsing.c */
-char **str_to_strtab(char *str);
+char **str_to_strtab(char *str, char *sep);
 
 size_t strtab_len(char **strtab);
 /* !parsing.c */
@@ -37,26 +35,11 @@ bool push_front(struct node **head, void *new_data, size_t datasize);
 bool push_back(struct node **head, void *new_data, size_t datasize);
 
 bool delete_node(struct node **origin, void *todel);
+
+bool delete_nodes(node_t **list);
+
+int count_nodes(node_t *list);
 /* !generic_list.c */
-
-/* http_header.c */
-#define HTTP_FORMAT ("%s%s%s%d\r\n%s")
-#define HTTP_HEADER_CODE ("HTTP/1.1 200 OK\r\n")
-#define HTTP_HEADER_CONTENT_TYPE ("content-type: text/plain\r\n")
-#define HTTP_HEADER_CONTENT_LENGTH ("content-length: ")
-#define HTTP_HEADER_CONTENT ("content")
-#define HTTP_HEADER_LENGTH(info) (67 + sizeof(size_t) + strlen(info))
-
-char *format_content(char *info);
-
-char *update_header(char *header, char *field_name, char *info);
-
-char *generate_header(char *info);
-
-char *size_t_to_char_array(int size);
-
-char *update_header_content(char *header, char *info, char *new);
-/* !http_header.c */
 
 /* error.c */
 const char *geterr(void);

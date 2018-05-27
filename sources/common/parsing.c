@@ -11,12 +11,13 @@
 
 #include "client.h"
 
-static unsigned int count_tabs(char *str)
+static unsigned int count_tabs(char *str, char *sep)
 {
+	size_t len = strlen(sep);
 	unsigned int tab = 0;
 
 	for (int i = 0; str[i]; ++i) {
-		if (str[i] == ' ')
+		if (strncmp(&str[i], sep, len) == 0)
 			tab += 1;
 	}
 	return tab + 1;
@@ -41,17 +42,17 @@ size_t strtab_len(char **strtab)
 	return size;
 }
 
-char **str_to_strtab(char *str)
+char **str_to_strtab(char *str, char *sep)
 {
-	int size = count_tabs(str);
+	int size = count_tabs(str, sep);
 	char **strtab = calloc(sizeof(char *), size + 1);
-	char *tab = strtok(str, " ");
+	char *tab = strtok(str, sep);
 
 	if (!strtab)
 		return NULL;
 	for (int idx = 0; idx < size && tab; ++idx) {
 		strtab[idx] = str_cut(tab);
-		tab = strtok(NULL, " ");
+		tab = strtok(NULL, sep);
 	}
 	return strtab;
 }

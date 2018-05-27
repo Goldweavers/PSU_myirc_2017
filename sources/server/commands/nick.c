@@ -35,22 +35,32 @@ static bool is_valid_nickname(const char *name)
 	return !isdigit(name[0]);
 }
 
-#include <stdio.h>
+static void welcome_messages(socket_t client, const char *nick)
+{
+	send_response(client, RPL_WELCOME, nick);
+	send_response(client, RPL_YOURHOST, SERVERNAME, IRC_VERSION);
+	send_response(client, RPL_CREATED, server.created);
+	send_response(client, RPL_LUSERCHANNELS, count_nodes(server.channels));
+	send_response(client, RPL_LUSERME, count_nodes(server.users));
+}
+
 int nick(char *parameters[], socket_t client)
 {
 	user_t *user = find_user_by_socket(server.users, client);
 	const char *nick = parameters[0];
 
-	if (!strtab_len(parameters))
+	if (strtab_len(parameters) == 0)
 		return send_response(client, ERR_NONICKNAMEGIVEN);
-	if (!is_valid_nickname(nick))
+	if (is_valid_nickname(nick) == false)
 		return send_response(client, ERR_ERRONEUSNICKNAME, nick);
-	if (find_user_by_name(server.users, nick))
+	if (find_user_by_name(server.users, nick) != NULL)
 		return send_response(client, ERR_NICKNAMEINUSE, nick);
-	if (!user->nickname)
-		send_response(user->net.socket, RPL_WELCOME);
-	else
-		free(user->nickname);
-	user->nickname = strdup(parameters[0]);
+	if (user->nickname == NULL) {
+		user->nickname = strdup(nick);
+		welcome_messages(user->net.socket, nick);
+		return EXIT_SUCCESS;
+	}
+	free(user->nickname);
+	user->nickname = strdup(nick);
 	return EXIT_SUCCESS;
 }
