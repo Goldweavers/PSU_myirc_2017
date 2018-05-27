@@ -28,10 +28,9 @@ static bool del_corrupted(const struct epoll_event *event)
 static bool create_new_user(void)
 {
 	user_t user = { .nickname=NULL, .channels=NULL };
-	uint32_t events = EPOLLIN | EPOLLRDHUP;
 
 	if (socket_accept(server.listener, &user.net)) {
-		if (!epoll_push(server.epoll, user.net.socket, events))
+		if (!epoll_push(server.epoll, user.net.socket, EPEVENTS))
 			return !close(user.net.socket);
 		if (push_front(&server.users, &user, sizeof(user)) == false) {
 			epoll_pop(server.epoll, user.net.socket);

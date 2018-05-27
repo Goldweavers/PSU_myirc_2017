@@ -37,7 +37,7 @@ static bool listener_init(in_port_t port)
 		close(server.listener);
 		return false;
 	}
-	if (epoll_push(server.epoll, server.listener, EPOLLIN) == false) {
+	if (epoll_push(server.epoll, server.listener, EPEVENTS) == false) {
 		close(server.listener);
 		close(server.epoll);
 		return false;

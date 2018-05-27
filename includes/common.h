@@ -18,6 +18,10 @@
 	#define EPITECH_ERROR 84
 #endif
 
+#ifndef EPEVENTS
+	#define EPEVENTS (EPOLLIN | EPOLLRDHUP | EPOLLHUP | EPOLLERR)
+#endif
+
 /* parsing.c */
 char **str_to_strtab(char *str, char *sep);
 
