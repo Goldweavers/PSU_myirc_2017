@@ -7,6 +7,7 @@ SRCS	=	../common/error.c	\
 		../common/socket.c	\
 		../common/commands.c	\
 		../common/conversion.c	\
+		../common/parsing.c	\
 		commands/server.c	\
 		commands/msg.c		\
 		commands/quit.c		\
@@ -19,7 +20,6 @@ SRCS	=	../common/error.c	\
 		commands/part.c		\
 		../client.c		\
 		commands.c		\
-		../common/parsing.c	\
 
 OBJS	=	$(SRCS:.c=.o)
 

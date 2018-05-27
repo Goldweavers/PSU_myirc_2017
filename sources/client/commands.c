@@ -24,20 +24,6 @@ bool find_client_commands(char *name, command_ptr *function)
 	return find_command_by_name(name, commands, function);
 }
 
-char *implode(char **parameters)
-{
-	int length = 0;
-	char *new;
-	int i = 0;
-
-	for (; parameters[i] != NULL; i++)
-		length += strlen(parameters[i]);
-	new = calloc(length + i, sizeof(char));
-	for (i = 0; parameters[i] != NULL; i++)
-		strcat(strcat(new, " "), parameters[i]);
-	return new;
-}
-
 char *format_reply_message(char *reply)
 {
 	return strstr(reply + 1, ":") + 1;

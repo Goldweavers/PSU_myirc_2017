@@ -13,7 +13,7 @@
 #include "reply_codes.h"
 #include "server.h"
 
-static char *implode(node_t *users)
+static char *implodes(node_t *users)
 {
 	char *result = NULL;
 	char *nickname = NULL;
@@ -41,7 +41,7 @@ static bool reply_to_client(socket_t client, char *name)
 	char *users = NULL;
 
 	if (channel != NULL) {
-		users = implode(channel->users);
+		users = implodes(channel->users);
 		if (!users)
 			return false;
 		send_response(client, RPL_NAMREPLY, channel->name, users);

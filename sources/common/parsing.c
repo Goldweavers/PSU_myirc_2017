@@ -23,8 +23,6 @@ static unsigned int count_tabs(char *str, char *sep)
 	return tab + 1;
 }
 
-#include <stdio.h>
-
 static char *str_cut(char *str)
 {
 	char *find = strstr(str, "\r\n");
@@ -32,6 +30,20 @@ static char *str_cut(char *str)
 	if (find)
 		*find = '\0';
 	return str;
+}
+
+char *implode(char **params)
+{
+	int length = 0;
+	char *new = NULL;
+	int i = 0;
+
+	for (; params[i] != NULL; ++i)
+		length += strlen(params[i]);
+	new = calloc(length + i + 1, sizeof(char));
+	for (i = 0; params[i] != NULL; ++i)
+		strcat(strcat(new, params[i]), params[i + 1] ? " " : "\0");
+	return new;
 }
 
 size_t strtab_len(char **strtab)

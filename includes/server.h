@@ -78,7 +78,7 @@ int wait_for_events(void);
 /* !event.c */
 
 /* command.c */
-bool handle_command(socket_t client, char *input);
+bool handle_command(socket_t client, char *command);
 /* !command.c */
 
 /* commands */

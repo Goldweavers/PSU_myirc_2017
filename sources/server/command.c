@@ -12,39 +12,37 @@
 #include "reply_codes.h"
 #include "server.h"
 
-static int debug(char *parameters[], socket_t client)
-{
-	(void)client;
-	(void)parameters;
-	return EXIT_SUCCESS;
-}
-
 bool find_server_commands(char *name, command_ptr *function)
 {
 	const command_t commands[] = {
 		{"NICK", &nick}, {"LIST", &list}, {"JOIN", &join},
-		{"PART", &part}, {"USERS", &users}, {"PRIVMSG", &debug},
+		{"PART", &part}, {"USERS", &users}, {"PRIVMSG", NULL},
 		{"QUIT", &quit}, {"NAMES", &names}, {NULL, NULL}
 	};
 
 	return find_command_by_name(name, commands, function);
 }
 
-bool handle_command(socket_t client, char *input)
+static bool need_register(command_ptr *function)
 {
-	char **strtab = str_to_strtab(input, " ");
+	return *function != &nick && *function != &quit;
+}
+
+bool handle_command(socket_t client, char *command)
+{
+	char **arguments = str_to_strtab(command, " ");
 	user_t *user = find_user_by_socket(server.users, client);
 	command_ptr function;
 
-	if (!strtab)
+	if (arguments == NULL)
 		return eprintf(false, "Failed to allocate\n");
-	if (find_server_commands(strtab[0], &function) == false)
-		dprintf(client, "Unknown command: %s\n", strtab[0]);
-	else if (function != nick && user->nickname == NULL)
-		send_response(client, ERR_NOTREGISTERED, strtab[0]);
+	if (find_server_commands(arguments[0], &function) == false)
+		dprintf(client, "Unknown command: %s\n", arguments[0]);
+	else if (need_register(&function) && user->nickname == NULL)
+		send_response(client, ERR_NOTREGISTERED, arguments[0]);
 	else
-		function(&strtab[1], client);
-	free(strtab);
-	free(input);
+		function(&arguments[1], client);
+	free(arguments);
+	free(command);
 	return true;
 }

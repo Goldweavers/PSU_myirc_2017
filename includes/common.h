@@ -22,6 +22,8 @@
 char **str_to_strtab(char *str, char *sep);
 
 size_t strtab_len(char **strtab);
+
+char *implode(char **params);
 /* !parsing.c */
 
 /* generic_list.c */

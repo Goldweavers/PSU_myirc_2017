@@ -27,5 +27,6 @@ void sig_handler(int status)
 		next = node->next;
 		delete_channel((channel_t *)node->data);
 	}
+	free(server.created);
 	exit(EXIT_SUCCESS);
 }

@@ -50,7 +50,7 @@ static int server_init(in_port_t port)
 	time_t now = time(NULL);
 	struct tm *time = localtime(&now);
 
-	server.created = asctime(time);
+	server.created = strdup(asctime(time));
 	eprintf(0, "Created on %s", server.created);
 	server.created[strlen(server.created) - 1] = '\0';
 	if (!epoll_init(&server.epoll) || !listener_init(port))

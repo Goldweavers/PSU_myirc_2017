@@ -11,7 +11,6 @@
 #include "common.h"
 
 /* Commands */
-
 int msg(char *parameters[], socket_t server);
 
 int join(char *parameters[], socket_t server);
@@ -31,8 +30,6 @@ int names(char *parameters[], socket_t server);
 int quit(char *parameters[], socket_t server);
 
 int accept_file(char *parameters[], socket_t server);
-
-
 /* !Commands */
 
 typedef struct cinfo {
@@ -40,13 +37,7 @@ typedef struct cinfo {
 	node_t *channels;
 	socket_t socket;
 
-}cinfo_t;
-
-/* commands.c */
-
-char *implode(char **parameters);
-
-/* !commands.c */
+} cinfo_t;
 
 bool find_client_commands(char *name, command_ptr *function);
 

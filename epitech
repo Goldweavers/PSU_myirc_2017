@@ -1,0 +1,6 @@
+user=cocopod
+{
+printf 'USER %s %s 127.0.0.1 :rien\r\n' "$user" "$user"
+printf 'NICK %s\r\n' "$user"
+cat
+} | nc irc.epitech.eu 6667
