@@ -12,23 +12,38 @@
 
 #include <unistd.h>
 #include <memory.h>
+#include <arpa/inet.h>
+#include <stdio.h>
 
 // TODO: really do this function
-int server(char *parameters[])
+int server(char *parameters[], socket_t server)
 {
 	socket_t sock;
+	in_port_t port;
 
-	socket_init("TCP", &sock);
-	if (sock == -EXIT_FAILURE
-		|| socket_connect(sock, INADDR_LOOPBACK, 6665) == -1)
-		return EXIT_FAILURE;
+	(void)server;
+	if (strlen(parameters[0]) == 0)
+		return eprintf(-1, "Not enough parameters given\n");
+	struct sockaddr_in sa;
+	char str[INET_ADDRSTRLEN];
 
-	const char str[] = "Message from client.\n";
-	write(sock, str, strlen(str));
+	// store this IP address in sa:
+	inet_pton(AF_INET, parameters[0], &(sa.sin_addr));
 
-	char buffer[1024];
-	memset(buffer, '\0', 1024);
-	read(sock, buffer, 1024 - 1);
-	write(STDOUT_FILENO, buffer, strlen(buffer));
+	// now get it back and print it
+	inet_ntop(AF_INET, &(sa.sin_addr), str, INET_ADDRSTRLEN);
+
+	printf("addr: %s\n", str);
+	/*if (inet_pton(AF_INET, parameters[0], &(sa.sin_addr)) != 1)
+		return eprintf(-1, "Invalid IP address\n");*/
+	if (!socket_init("TCP", &sock))
+		return -EXIT_FAILURE;
+	if (!str_to_port(parameters[1], &port))
+		port = 6667;
+	if (socket_connect(sock, sa.sin_addr.s_addr, port) == -EXIT_FAILURE) {
+		printf("err: %s\n", geterr());
+		return -EXIT_FAILURE;
+	}
+	printf("Successfully connected\n");
 	return EXIT_SUCCESS;
 }
