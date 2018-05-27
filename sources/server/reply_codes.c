@@ -48,10 +48,16 @@ const reply_t replies[] = {
 	 */
 	{ERR_USERONCHANNEL, "%s %s :You are already on this channel"},
 	/**
+	 * %s: channel/nick
+	 */
+	{ERR_NOSUCHNICK, "%s :No such nick/channel"},
+	/**
 	 * %s: channel
 	 * %s: reason
 	 */
 	{ERR_NOSUCHCHANNEL, "%s :%s"},
+
+	{ERR_NOTEXTTOSEND, ":No text to send"},
 	/**
 	 * %s: channel
 	 */

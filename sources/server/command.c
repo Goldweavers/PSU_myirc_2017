@@ -16,7 +16,7 @@ bool find_server_commands(char *name, command_ptr *function)
 {
 	const command_t commands[] = {
 		{"NICK", &nick}, {"LIST", &list}, {"JOIN", &join},
-		{"PART", &part}, {"USERS", &users}, {"PRIVMSG", NULL},
+		{"PART", &part}, {"USERS", &users}, {"PRIVMSG", &privmsg},
 		{"QUIT", &quit}, {"NAMES", &names}, {NULL, NULL}
 	};
 

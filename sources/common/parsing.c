@@ -50,7 +50,7 @@ size_t strtab_len(char **strtab)
 {
 	int size = 0;
 
-	for (; strtab[size]; ++size);
+	for (; strtab[size] && strlen(strtab[size]) > 0; ++size);
 	return size;
 }
 

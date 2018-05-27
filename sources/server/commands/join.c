@@ -42,7 +42,7 @@ static int handle_channel(user_t *user, char *name)
 
 	if (!is_valid_name(channel.name))
 		return send_response(user->net.socket, ERR_NOSUCHCHANNEL,
-			channel.name, "Invalid channel name");
+			name, "Invalid channel name");
 	if (to_join == NULL)
 		to_join = create_channel(channel.name);
 	else

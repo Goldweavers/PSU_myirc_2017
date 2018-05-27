@@ -11,6 +11,7 @@ SRCS	=	../server.c			\
 		../common/memory.c		\
 		../common/parsing.c		\
 		../common/commands.c		\
+		commands/privmsg.c		\
 		commands/part.c			\
 		commands/nick.c			\
 		commands/quit.c			\

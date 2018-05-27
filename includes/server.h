@@ -95,6 +95,8 @@ int list(char *parameters[], socket_t client);
 int names(char *parameters[], socket_t client);
 
 int users(char *parameters[], socket_t client);
+
+int privmsg(char *parameters[], socket_t client);
 /* !commands */
 
 #endif //PSU_MYIRC_2017_SERVER_H
